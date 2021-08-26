@@ -1,0 +1,74 @@
+public-key: KUkEo50LYF+wob+/eRIc6n3gf0zZLYXSqlnbBpSkWL7fvGAzCGf2Zs7a25TQNqxFndNxrT1DP5M8kEHuSTtLRA==
+spring:
+  devtools:
+    restart:
+      eanbled: false
+  druid:
+    username: root
+    password: Ik/uq31Oh1bwiqQvCLxQ2RhJaxh4WSHKs27FEdzhzPO/FhkxpM7spGymyYZfcyPlCAPD4UPnWUFznoYD89LwtQ==
+    url: jdbc:mysql://${DB_HOST}:3306/halo?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    initial-size: 5
+    min-idle: 5
+    max-active: 20
+    # 配置获取连接等待超时的时间
+    max-wait: 60000
+    #   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+    filters: stat,wall,slf4j,config
+    connection-properties: config.decrypt=true;config.decrypt.key=${public-key};
+    test-on-borrow: false
+    test-on-return: false
+    test-while-idle: true
+    # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+    time-between-eviction-runs-millis: 60000
+    # 配置一个连接在池中最小生存的时间，单位是毫秒
+    min-evictable-idle-time-millis: 30000
+    validation-query: select 'x'
+    # 打开PSCache，并且指定每个连接上PSCache的大小
+    pool-prepared-statements: true
+    max-pool-prepared-statement-per-connection-size: 20
+    use-global-data-source-stat: true
+    stat-view-servlet:
+      enabled: true
+      login-username: admin
+      login-password: 123456
+      reset-enable: false
+      url-pattern: /druid/*
+      allow:
+    web-stat-filter:
+      url-pattern: /*
+      exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+    filter:
+      stat:
+        log-slow-sql: true
+        slow-sql-millis: 3000
+        merge-sql: true
+      wall:
+        enabled: true
+        db-type: mysql
+        config:
+          drop-table-allow: false
+          #            delete-allow: false
+          multi-statement-allow: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+logging:
+  level:
+    run.halo.app: INFO
+    org.eclipse.jetty.server.HttpChannel: ERROR
+  file:
+    path: ${halo.work-dir}/logs
+springfox:
+  documentation:
+    enabled: false
+halo:
+  auth-enabled: true
+  download-timeout: 5m
+  cache: memory
+  work-dir: ${user.home}/.halo/
+
+
+
+

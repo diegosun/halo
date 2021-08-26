@@ -98,6 +98,7 @@ ext {
     huaweiObsVersion = "3.19.7"
     templateInheritanceVersion = "0.4.RELEASE"
     jsoupVersion = "1.13.1"
+    druidVersion = "1.1.22"
 }
 
 dependencies {
@@ -148,6 +149,9 @@ dependencies {
     implementation "org.flywaydb:flyway-core:$flywayVersion"
     implementation "com.google.zxing:core:$zxingVersion"
 
+    // new dependency
+    implementation "com.alibaba:druid:$druidVersion"
+
     implementation "org.iq80.leveldb:leveldb:$levelDbVersion"
     runtimeOnly "com.h2database:h2:$h2Version"
     runtimeOnly "mysql:mysql-connector-java"
@@ -164,6 +168,7 @@ dependencies {
     testImplementation("org.jsoup:jsoup:${jsoupVersion}")
 
     developmentOnly "org.springframework.boot:spring-boot-devtools"
+
 }
 
 test {

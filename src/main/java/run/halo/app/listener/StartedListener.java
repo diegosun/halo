@@ -36,6 +36,7 @@ import run.halo.app.model.support.HaloConst;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.ThemeService;
 import run.halo.app.utils.FileUtils;
+import javax.sql.DataSource;
 
 /**
  * The method executed after the application is started.
@@ -58,14 +59,17 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     @Autowired
     private ThemeService themeService;
 
-    @Value("${spring.datasource.url}")
-    private String url;
+    @Autowired
+    private DataSource dataSource;
 
-    @Value("${spring.datasource.username}")
-    private String username;
-
-    @Value("${spring.datasource.password}")
-    private String password;
+    // @Value("${spring.datasource.druid.url}")
+    // private String url;
+    //
+    // @Value("${spring.datasource.druid.username}")
+    // private String username;
+    //
+    // @Value("${spring.datasource.druid.password}")
+    // private String password;
 
     @Value("${springfox.documentation.enabled}")
     private Boolean documentationEnabled;
@@ -117,7 +121,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             .locations("classpath:/migration")
             .baselineVersion("1")
             .baselineOnMigrate(true)
-            .dataSource(url, username, password)
+            .dataSource(dataSource)
             .load();
         flyway.repair();
         flyway.migrate();

@@ -1,57 +1,63 @@
-server:
-  port: 8090
-  forward-headers-strategy: native
-  compression:
-    enabled: true
+public-key: GiLk2GGK+D0xM/QawHYUGMCN9Q7/P2EB98fqWDstgebP0ev2OdnlvCsQx3cLhI3ptbSiLK7WQp8JTv02GyEmfA==
 spring:
-  jackson:
-    date-format: yyyy-MM-dd HH:mm:ss
-  output:
-    ansi:
-      enabled: always
   devtools:
     restart:
       eanbled: true
   datasource:
-    type: com.zaxxer.hikari.HikariDataSource
+    type: com.alibaba.druid.pool.DruidDataSource
+    druid:
+      username: root
+      password: Ik/uq31Oh1bwiqQvCLxQ2RhJaxh4WSHKs27FEdzhzPO/FhkxpM7spGymyYZfcyPlCAPD4UPnWUFznoYD89LwtQ==
+      url: jdbc:mysql://127.0.0.1:3306/halo?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      initial-size: 5
+      min-idle: 5
+      max-active: 20
+      # 配置获取连接等待超时的时间
+      max-wait: 60000
+      #   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
+      filters: stat,wall,slf4j,config
+      connection-properties: config.decrypt=true;config.decrypt.key=${public-key};
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      # 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒
+      time-between-eviction-runs-millis: 60000
+      # 配置一个连接在池中最小生存的时间，单位是毫秒
+      min-evictable-idle-time-millis: 30000
+      validation-query: select 'x'
+      # 打开PSCache，并且指定每个连接上PSCache的大小
+      pool-prepared-statements: true
+      max-pool-prepared-statement-per-connection-size: 20
+      use-global-data-source-stat: true
+      stat-view-servlet:
+        enabled: true
+        login-username: admin
+        login-password: 123456
+        reset-enable: false
+        url-pattern: /druid/*
+        allow:
+      web-stat-filter:
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+      filter:
+        stat:
+          log-slow-sql: true
+          slow-sql-millis: 3000
+          merge-sql: true
+        wall:
+          enabled: true
+          db-type: mysql
+          config:
+            drop-table-allow: false
+            #            delete-allow: false
+            multi-statement-allow: true
 
-    # H2 database configuration.
-    driver-class-name: org.h2.Driver
-    url: jdbc:h2:file:~/halo-dev/db/halo
-    username: admin
-    password: 123456
-
-    # MySQL database configuration.
-  #    driver-class-name: com.mysql.cj.jdbc.Driver
-  #    url: jdbc:mysql://127.0.0.1:3306/halo_dev?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-  #    username: root
-  #    password: 123456
-
-  h2:
-    console:
-      settings:
-        web-allow-others: true
-      path: /h2-console
-      enabled: true
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
     open-in-view: false
-  flyway:
-    enabled: false
-  servlet:
-    multipart:
-      max-file-size: 10240MB
-      max-request-size: 10240MB
-  cache:
-    type: none
-management:
-  endpoints:
-    web:
-      base-path: /api/admin/actuator
-      exposure:
-        include: [ 'httptrace', 'metrics','env','logfile','health' ]
 logging:
   level:
     run.halo.app: DEBUG
@@ -60,11 +66,9 @@ logging:
     org.hibernate.type.descriptor.sql.BasicExtractor: INFO
   file:
     path: ${halo.work-dir}/logs
-
 springfox:
   documentation:
     enabled: true
-
 halo:
   auth-enabled: true
   mode: development
