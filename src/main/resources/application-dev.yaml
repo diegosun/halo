@@ -1,13 +1,12 @@
-public-key: GiLk2GGK+D0xM/QawHYUGMCN9Q7/P2EB98fqWDstgebP0ev2OdnlvCsQx3cLhI3ptbSiLK7WQp8JTv02GyEmfA==
+public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAK63KAFdKDG0SawD0ayhGe9ZOgSq2sZVN6BDEfvRgxodNY5pzBzM1IpvlixP0SuBioguxpZB+eS4oiUpv5M1MacCAwEAAQ==
 spring:
   devtools:
     restart:
       eanbled: true
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource
     druid:
       username: root
-      password: Ik/uq31Oh1bwiqQvCLxQ2RhJaxh4WSHKs27FEdzhzPO/FhkxpM7spGymyYZfcyPlCAPD4UPnWUFznoYD89LwtQ==
+      password: JvVNxaKrdehWw5Ppkctqb0vp3oWQTY7guQZmKAX0eKljb3nDmtLByfH4J1ig7hRt1aTgljc1Kqu6G91wwlIpyA==
       url: jdbc:mysql://127.0.0.1:3306/halo?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false
       driver-class-name: com.mysql.cj.jdbc.Driver
       initial-size: 5

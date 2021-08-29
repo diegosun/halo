@@ -70,7 +70,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     //
     // @Value("${spring.datasource.druid.password}")
     // private String password;
-
+    //
     @Value("${springfox.documentation.enabled}")
     private Boolean documentationEnabled;
 
@@ -122,6 +122,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             .baselineVersion("1")
             .baselineOnMigrate(true)
             .dataSource(dataSource)
+            // .dataSource(url, username, password)
             .load();
         flyway.repair();
         flyway.migrate();

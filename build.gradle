@@ -150,10 +150,10 @@ dependencies {
     implementation "com.google.zxing:core:$zxingVersion"
 
     // new dependency
-    implementation "com.alibaba:druid:$druidVersion"
+    implementation "com.alibaba:druid-spring-boot-starter:$druidVersion"
 
     implementation "org.iq80.leveldb:leveldb:$levelDbVersion"
-    runtimeOnly "com.h2database:h2:$h2Version"
+//    runtimeOnly "com.h2database:h2:$h2Version"
     runtimeOnly "mysql:mysql-connector-java"
 
     compileOnly "org.projectlombok:lombok"
