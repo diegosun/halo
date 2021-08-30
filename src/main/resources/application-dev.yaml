@@ -15,7 +15,7 @@ spring:
       # 配置获取连接等待超时的时间
       max-wait: 60000
       #   配置监控统计拦截的filters，去掉后监控界面sql无法统计，'wall'用于防火墙
-      filters: stat,wall,slf4j,config
+      filters: stat,slf4j,config
       connection-properties: config.decrypt=true;config.decrypt.key=${public-key};
       test-on-borrow: false
       test-on-return: false
@@ -44,13 +44,6 @@ spring:
           log-slow-sql: true
           slow-sql-millis: 3000
           merge-sql: true
-        wall:
-          enabled: true
-          db-type: mysql
-          config:
-            drop-table-allow: false
-            #            delete-allow: false
-            multi-statement-allow: true
 
   jpa:
     hibernate:

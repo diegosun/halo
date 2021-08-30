@@ -65,7 +65,12 @@ Halo 使用 GPL-v3.0 协议开源，请尽量遵守开源协议。
 
 ## 贡献
 
-参考 [CONTRIBUTING](./CONTRIBUTING.md)。
+```sh
+docker login --username=sunyanfeng1987 registry.cn-qingdao.aliyuncs.com
+
+docker build -t registry.cn-qingdao.aliyuncs.com/fridayplus/halo:0.2.0 .
+docker push registry.cn-qingdao.aliyuncs.com/fridayplus/halo:0.1.0
+```
 
 ## 赞助我们
 
