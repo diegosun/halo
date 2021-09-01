@@ -1,5 +1,6 @@
 package run.halo.app.core.freemarker.tag;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import freemarker.core.Environment;
@@ -51,7 +52,7 @@ public class CategoryTagDirective implements TemplateDirectiveModel {
             switch (method) {
                 case "list":
                     env.setVariable("categories", builder.build().wrap(postCategoryService
-                        .listCategoryWithPostCountDto(Sort.by(DESC, "createTime"), false)));
+                        .listCategoryWithPostCountDto(Sort.by(ASC, "createTime"), false)));
                     break;
                 case "tree":
                     env.setVariable("categories", builder.build()

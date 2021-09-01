@@ -36,7 +36,8 @@ services:
       JVM_XMS: 256m
       JVM_XMX: 256m
     volumes:
-      - ./blog/halo-backup-markdown:/tmp/halo-backup-markdown
+      - ./blog/halo_backup:/tmp/halo-backup-markdown
+      - ./blog/halo_data:/root/.halo
     links:
       - blog-mysql
     expose:
