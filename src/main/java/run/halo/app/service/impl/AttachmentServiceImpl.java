@@ -1,11 +1,16 @@
 package run.halo.app.service.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.zip.ZipInputStream;
 import javax.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +24,8 @@ import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import run.halo.app.exception.AlreadyExistsException;
+import run.halo.app.exception.ServiceException;
+import run.halo.app.exception.ThemePropertyMissingException;
 import run.halo.app.handler.file.FileHandlers;
 import run.halo.app.model.dto.AttachmentDTO;
 import run.halo.app.model.entity.Attachment;
@@ -30,7 +37,11 @@ import run.halo.app.repository.AttachmentRepository;
 import run.halo.app.service.AttachmentService;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.base.AbstractCrudService;
+import run.halo.app.theme.ThemePropertyScanner;
+import run.halo.app.utils.FileUtils;
 import run.halo.app.utils.HaloUtils;
+
+import static run.halo.app.utils.FileUtils.unzip;
 
 /**
  * AttachmentService implementation
@@ -112,6 +123,8 @@ public class AttachmentServiceImpl extends AbstractCrudService<Attachment, Integ
         log.debug("Starting uploading... type: [{}], file: [{}]", attachmentType,
             file.getOriginalFilename());
 
+        // 需要判断一下zip
+
         // Upload file
         UploadResult uploadResult = fileHandlers.upload(file, attachmentType);
 
@@ -136,6 +149,35 @@ public class AttachmentServiceImpl extends AbstractCrudService<Attachment, Integ
 
         // Create and return
         return create(attachment);
+    }
+
+    private List<Attachment> uploadImageZip(MultipartFile file){
+        // 验证zip:
+        // 最好是在文件名上加点标识，有这种标识则进行处理；另外就是全部打开之后判断文件格式，然后处理
+
+        // 解压   => Stream、File等的处理
+
+        try (var zis = new ZipInputStream(file.getInputStream())) {
+            final var tempDirectory = FileUtils.createTempDirectory();
+            log.info("Unzipping {} to path {}", file.getOriginalFilename(), tempDirectory);
+            unzip(zis, tempDirectory);
+
+            try (final Stream<Path> childrenPaths = Files.list(tempDirectory)) {
+                childrenPaths.map(p -> {
+                    System.out.println(p.getFileName());
+                    return p;
+                });
+            }
+
+
+        } catch (IOException e) {
+            throw new ServiceException("上传Zip失败！", e);
+        }
+
+        // 各个上传里边的文件
+
+        // 返回
+        return null;
     }
 
     @Override
@@ -195,6 +237,11 @@ public class AttachmentServiceImpl extends AbstractCrudService<Attachment, Integ
     @Override
     public List<AttachmentType> listAllType() {
         return attachmentRepository.findAllType();
+    }
+
+    @Override
+    public List<Attachment> findByName(String name) {
+        return attachmentRepository.findByName(name);
     }
 
     @Override

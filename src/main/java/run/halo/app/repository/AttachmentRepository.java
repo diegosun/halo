@@ -41,4 +41,12 @@ public interface AttachmentRepository
      * @return count of the given path
      */
     long countByPath(@NonNull String path);
+
+    /**
+     * 根据名字获取附件
+     * @param name
+     * @return
+     */
+    @Query(value = "select a from Attachment a where a.name=?1 order by a.createTime desc")
+    List<Attachment> findByName(String name);
 }

@@ -41,6 +41,7 @@ import run.halo.app.event.post.PostVisitEvent;
 import run.halo.app.exception.NotFoundException;
 import run.halo.app.model.dto.post.BasePostMinimalDTO;
 import run.halo.app.model.dto.post.BasePostSimpleDTO;
+import run.halo.app.model.entity.Attachment;
 import run.halo.app.model.entity.Category;
 import run.halo.app.model.entity.Post;
 import run.halo.app.model.entity.PostCategory;
@@ -62,6 +63,7 @@ import run.halo.app.model.vo.PostListVO;
 import run.halo.app.model.vo.PostMarkdownVO;
 import run.halo.app.repository.PostRepository;
 import run.halo.app.repository.base.BasePostRepository;
+import run.halo.app.service.AttachmentService;
 import run.halo.app.service.AuthorizationService;
 import run.halo.app.service.CategoryService;
 import run.halo.app.service.OptionService;
@@ -111,6 +113,8 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
 
     private final AuthorizationService authorizationService;
 
+    private final AttachmentService attachmentService;
+
     public PostServiceImpl(BasePostRepository<Post> basePostRepository,
         OptionService optionService,
         PostRepository postRepository,
@@ -121,7 +125,8 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
         PostCommentService postCommentService,
         ApplicationEventPublisher eventPublisher,
         PostMetaService postMetaService,
-        AuthorizationService authorizationService) {
+        AuthorizationService authorizationService,
+        AttachmentService attachmentService) {
         super(basePostRepository, optionService);
         this.postRepository = postRepository;
         this.tagService = tagService;
@@ -133,6 +138,7 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
         this.postMetaService = postMetaService;
         this.optionService = optionService;
         this.authorizationService = authorizationService;
+        this.attachmentService = attachmentService;
     }
 
     @Override
@@ -463,9 +469,54 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
             post.setSlug(SlugUtils.slug(post.getTitle()));
         }
 
+        // 增加对image的处理
+        markdown = handleMarkDownImage(markdown);
+
         post.setOriginalContent(markdown);
 
         return createBy(post.convertTo(), tagIds, categoryIds, false);
+    }
+
+    /**
+     * 从 attachment中选择图片进行替换
+     * TODO：String，主要是正则
+     * @param markdown
+     * @return
+     */
+    private String handleMarkDownImage(String markdown){
+        // 匹配markdown image
+        List<String> imageList = MarkdownUtils.getImageSrc(markdown);
+        if(imageList.size() == 0){
+            return markdown;
+        }
+
+        for (String image: imageList) {
+            int startPos = image.lastIndexOf("/");
+            startPos += 1;
+
+            int endPos = image.lastIndexOf(".");
+            if(endPos == -1){
+                endPos = image.length();
+            }
+            String imageName = image.substring(startPos, endPos);
+            // 获取附件
+            List<Attachment> attachmentList = attachmentService.findByName(imageName);
+            if(attachmentList==null || attachmentList.size()==0){
+                continue;
+            }
+            Attachment attachment = attachmentList.get(0);
+            String newPath = attachment.getPath();
+            if(!newPath.startsWith("/")){
+                newPath = "/" + newPath;
+            }
+            if(attachmentList.size() > 1){
+                newPath += "【warning】";
+            }
+            // 替换
+            markdown = markdown.replaceAll(image, newPath);
+        }
+
+        return markdown;
     }
 
     @Override

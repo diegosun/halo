@@ -82,4 +82,11 @@ public interface AttachmentService extends CrudService<Attachment, Integer> {
      * @return list of type.
      */
     List<AttachmentType> listAllType();
+
+    /**
+     * find Attachment by name
+     * @param name
+     * @return
+     */
+    List<Attachment> findByName(String name);
 }

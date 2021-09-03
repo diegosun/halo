@@ -21,6 +21,7 @@ import com.vladsch.flexmark.parser.Parser;
 import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.DataHolder;
 import com.vladsch.flexmark.util.data.MutableDataSet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -72,6 +73,9 @@ public class MarkdownUtils {
 
     private static final HtmlRenderer RENDERER = HtmlRenderer.builder(OPTIONS).build();
     private static final Pattern FRONT_MATTER = Pattern.compile("^---[\\s\\S]*?---");
+
+    private static final Pattern MARKDOWN_IMAGE_PATTERN = Pattern.compile("!\\[[\\S]*\\]\\(([\\S]*)\\)");
+    private static final Pattern HTML_IMAGE_PATTERN = Pattern.compile("<img[\\s\\S]*src=\"(\\S+)\"[\\s\\S]*/>");
 
     //    /**
     //     * Render html document to markdown document.
@@ -155,5 +159,44 @@ public class MarkdownUtils {
             return markdown.replace(matcher.group(), "");
         }
         return markdown;
+    }
+
+    public static List<String> getImageSrc(String markdown){
+        List<String> srcList = new ArrayList<>();
+
+        Matcher matcher = MARKDOWN_IMAGE_PATTERN.matcher(markdown);
+        while (matcher.find()){
+            String src = matcher.group(1);
+            srcList.add(src);
+        }
+
+        matcher = HTML_IMAGE_PATTERN.matcher(markdown);
+        while (matcher.find()){
+            String src = matcher.group(1);
+            srcList.add(src);
+        }
+
+        return srcList;
+    }
+
+    // test
+    public static void main(String[] args) {
+        String strMd = "xxxx![zipkin示意图](2021-07-28SpringCloud之调用链监控/zipkin示意图.png)xxxx";
+        String strHtml = "yyyy<img src=\"zipkin示意图.png\" " +
+            "alt=\"zipkin示意图\" style=\"zoom:80%;\" />yyyy";
+        String strContent = strMd+strHtml;
+
+        Matcher m = MARKDOWN_IMAGE_PATTERN.matcher(strMd);
+        if(m.find()){
+            System.out.println(m.group(1));
+        }
+
+        m = HTML_IMAGE_PATTERN.matcher(strHtml);
+        if(m.find()){
+            System.out.println(m.group(1));
+        }
+
+        List<String> list = MarkdownUtils.getImageSrc(strContent);
+        System.out.println(list);
     }
 }
