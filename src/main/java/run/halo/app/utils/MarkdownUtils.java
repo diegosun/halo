@@ -75,7 +75,8 @@ public class MarkdownUtils {
     private static final Pattern FRONT_MATTER = Pattern.compile("^---[\\s\\S]*?---");
 
     private static final Pattern MARKDOWN_IMAGE_PATTERN = Pattern.compile("!\\[[\\S]*\\]\\(([\\S]*)\\)");
-    private static final Pattern HTML_IMAGE_PATTERN = Pattern.compile("<img[\\s\\S]*src=\"(\\S+)\"[\\s\\S]*/>");
+    // private static final Pattern HTML_IMAGE_PATTERN = Pattern.compile("<img[\\s\\S]*src=\"(\\S+)\"[\\s\\S]*/>");
+    private static final Pattern HTML_IMAGE_PATTERN = Pattern.compile("<img.*src=\"(\\S+)\".*?>");
 
     //    /**
     //     * Render html document to markdown document.
@@ -170,9 +171,9 @@ public class MarkdownUtils {
             srcList.add(src);
         }
 
-        matcher = HTML_IMAGE_PATTERN.matcher(markdown);
-        while (matcher.find()){
-            String src = matcher.group(1);
+        Matcher matcher2 = HTML_IMAGE_PATTERN.matcher(markdown);
+        while (matcher2.find()){
+            String src = matcher2.group(1);
             srcList.add(src);
         }
 
@@ -181,10 +182,55 @@ public class MarkdownUtils {
 
     // test
     public static void main(String[] args) {
-        String strMd = "xxxx![zipkin示意图](2021-07-28SpringCloud之调用链监控/zipkin示意图.png)xxxx";
-        String strHtml = "yyyy<img src=\"zipkin示意图.png\" " +
-            "alt=\"zipkin示意图\" style=\"zoom:80%;\" />yyyy";
-        String strContent = strMd+strHtml;
+        String strMd = "xxxx![zipkin示意图](zipkin示意图.png)xxxx";
+        String strHtml = "\n" +
+            "\n" +
+            "本文是学习ali云的云原生课程的记录，目的是对基础概念的理解\n" +
+            "[原课程](2019-12-11k8s基础/https://edu.aliyun.com/roadmap/cloudnative)  \n" +
+            "\n" +
+            "<!--more-->\n" +
+            "\n" +
+            "# K8S核心概念  \n" +
+            "\n" +
+            "## 架构\n" +
+            "\n" +
+            "- K8S的架构是CS架构：  \n" +
+            "  <img src=\"2019-12-11k8s基础/架构-1.png\" alt=\"架构-1.png\" style=\"zoom:67%;\" />  \n" +
+            "\n" +
+            "- master的结构如下：  \n" +
+            "  <img src=\"2019-12-11k8s基础/master结构.png\" alt=\"master结构.png\" style=\"zoom:67%;\"" +
+            " />  \n" +
+            "\n" +
+            "  - Api Server不仅是外部访问k8s的入口，也是k8s各组件内部的枢纽  \n" +
+            "  - Scheduler用于调度deployment的pod在哪个node节点运行  \n" +
+            "  - Controller用于控制状态，做一些检测，确定集群运行正常，当有节点宕机，将其上的pod运行到其他节点上。  \n" +
+            "  - etcd是一个分布式数据库  \n" +
+            "\n" +
+            "  ps: \n" +
+            "  \n" +
+            "  **2021-03-09**:  API Server的这个方式比较适合该场景。与互联网不同，访问量不会特别高，不同的功能单独做了封装。**API " +
+            "server是控制，etcd是存储，Controller与Scheduler是逻辑**。\n" +
+            "\n" +
+            "\n" +
+            "\n" +
+            "- node的结构如下：  \n" +
+            " \n" +
+            "\n" +
+            "  - pod翻译是豆荚，是k8s对容器的一种封装  \n" +
+            "  - kubelet，是node下的控制，接收自master的命令，运行pod  \n" +
+            "  - Container Runtime，容器运行环境，是容器实际运行的地方  \n" +
+            "  - storage plugin，存储插件，是云计算厂商实现的存储接口  \n" +
+            "  - network plugin，网络插件，同样也是云计算厂商实现  \n" +
+            "  - **kube-proxy**，是位置k8s内部service集群的代理  \n" +
+            "\n" +
+            "- 示例  \n" +
+            "  <img src=\"2019-12-11k8s基础/一个例子.png\" alt=\"一个例子.png\" style=\"zoom:67%;\" />  \n" +
+            "  <img src=\"2019-12-11k8s基础/node.png\" alt=\"master结构.png\" style=\"zoom:67%;\" /> " +
+            "\n" +
+            "  这个例子是有一个pod要运行，先与api server进行交互，api " +
+            "server进行存储，然后交给scheduler进行调度，scheduler根据目前集群的状态，计算该pod运行的位置，并经过api " +
+            "server进行存储，下发给node上的kubelet，kubelet再在container Runtime下运行起相应的pod（容器）";
+        String strContent = strMd+strHtml + strHtml + strHtml;
 
         Matcher m = MARKDOWN_IMAGE_PATTERN.matcher(strMd);
         if(m.find()){

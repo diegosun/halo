@@ -510,7 +510,7 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
                 newPath = "/" + newPath;
             }
             if(attachmentList.size() > 1){
-                newPath += "【warning】";
+                newPath += "【warn】";
             }
             // 替换
             markdown = markdown.replaceAll(image, newPath);
