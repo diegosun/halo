@@ -151,6 +151,7 @@ dependencies {
 
     // new dependency
     implementation "com.alibaba:druid-spring-boot-starter:$druidVersion"
+    implementation "org.apache.ant:ant:1.10.5"
 
     implementation "org.iq80.leveldb:leveldb:$levelDbVersion"
 //    runtimeOnly "com.h2database:h2:$h2Version"

@@ -20,7 +20,9 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +33,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
+// import org.apache.tools.zip.ZipOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -532,9 +535,14 @@ public class BackupServiceImpl implements BackupService {
         List<PostMarkdownVO> postMarkdownList = postService.listPostMarkdowns();
         Assert.notEmpty(postMarkdownList, "当前无文章可以导出");
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String strNow = DateTimeUtils.format(LocalDateTime.now(), formatter);
+
         // Write files to the temporary directory
         String markdownFileTempPathName =
-            haloProperties.getBackupMarkdownDir() + IdUtil.simpleUUID().hashCode();
+            haloProperties.getBackupMarkdownDir() + strNow;
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
         for (PostMarkdownVO postMarkdownVo : postMarkdownList) {
             StringBuilder content = new StringBuilder();
             Boolean needFrontMatter =
@@ -545,8 +553,8 @@ public class BackupServiceImpl implements BackupService {
             }
             content.append(postMarkdownVo.getOriginalContent());
             try {
-                String markdownFileName =
-                    postMarkdownVo.getTitle() + "-" + postMarkdownVo.getSlug() + ".md";
+                String markdownFileName = simpleDateFormat.format(postMarkdownVo.getCreateTime()) +
+                    postMarkdownVo.getTitle() + ".md";
                 Path markdownFilePath = Paths.get(markdownFileTempPathName, markdownFileName);
                 if (!Files.exists(markdownFilePath.getParent())) {
                     Files.createDirectories(markdownFilePath.getParent());
@@ -562,8 +570,8 @@ public class BackupServiceImpl implements BackupService {
 
         // Create zip path
         String markdownZipFileName = HALO_BACKUP_MARKDOWN_PREFIX
-            + DateTimeUtils.format(LocalDateTime.now(), HORIZONTAL_LINE_DATETIME_FORMATTER)
-            + IdUtil.simpleUUID().hashCode() + ".zip";
+            + strNow
+            + ".zip";
 
         // Create zip file
         Path markdownZipFilePath =
@@ -575,7 +583,6 @@ public class BackupServiceImpl implements BackupService {
         // Zip file
         try (ZipOutputStream markdownZipOut = new ZipOutputStream(
             Files.newOutputStream(markdownZipPath))) {
-
             // Zip temporary directory
             Path markdownFileTempPath = Paths.get(markdownFileTempPathName);
             run.halo.app.utils.FileUtils.zip(markdownFileTempPath, markdownZipOut);

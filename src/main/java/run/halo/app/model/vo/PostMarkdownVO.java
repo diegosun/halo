@@ -2,6 +2,7 @@ package run.halo.app.model.vo;
 
 import lombok.Data;
 import lombok.ToString;
+import java.util.Date;
 
 /**
  * Markdown export VO
@@ -20,4 +21,6 @@ public class PostMarkdownVO {
     private String originalContent;
 
     private String frontMatter;
+
+    private Date createTime;
 }

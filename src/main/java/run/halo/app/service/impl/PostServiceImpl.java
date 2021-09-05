@@ -1036,6 +1036,8 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
         postMarkdownVO.setOriginalContent(post.getOriginalContent());
         postMarkdownVO.setTitle(post.getTitle());
         postMarkdownVO.setSlug(post.getSlug());
+        postMarkdownVO.setCreateTime(post.getCreateTime());
+
         return postMarkdownVO;
     }
 
