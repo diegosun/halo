@@ -582,7 +582,7 @@ public class BackupServiceImpl implements BackupService {
         Path markdownZipPath = Files.createFile(markdownZipFilePath);
         // Zip file
         try (ZipOutputStream markdownZipOut = new ZipOutputStream(
-            Files.newOutputStream(markdownZipPath))) {
+            Files.newOutputStream(markdownZipPath), CharsetUtil.CHARSET_GBK)) {
             // Zip temporary directory
             Path markdownFileTempPath = Paths.get(markdownFileTempPathName);
             run.halo.app.utils.FileUtils.zip(markdownFileTempPath, markdownZipOut);
