@@ -568,6 +568,9 @@ public class BackupServiceImpl implements BackupService {
             }
         }
 
+        // export sql
+        String sqlFileName = exportDatabase();
+
         // Create zip path
         String markdownZipFileName = HALO_BACKUP_MARKDOWN_PREFIX
             + strNow
@@ -595,6 +598,13 @@ public class BackupServiceImpl implements BackupService {
                 run.halo.app.utils.FileUtils.zip(uploadPath, markdownZipOut);
             }
 
+            // Zip SQL
+            Path sqlPath = Paths.get(sqlFileName);
+            if(Files.exists(sqlPath)){
+                run.halo.app.utils.FileUtils.zip(sqlPath, markdownZipOut);
+                // run.halo.app.utils.FileUtils.deleteFolder(sqlPath);
+            }
+
             // Remove files in the temporary directory
             run.halo.app.utils.FileUtils.deleteFolder(markdownFileTempPath);
 
@@ -603,6 +613,24 @@ public class BackupServiceImpl implements BackupService {
         } catch (IOException e) {
             throw new ServiceException("Failed to export markdowns", e);
         }
+    }
+
+    // todo: 如何远程导
+    private String exportDatabase(){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String strNow = DateTimeUtils.format(LocalDateTime.now(), formatter);
+        String backupPathName = haloProperties.getBackupMarkdownDir();
+        String fileName = backupPathName + strNow + ".sql";
+
+        String cmd = "mysqldump -uroot -pfriday12358 halo > " + fileName;
+        try {
+            Runtime.getRuntime().exec(cmd);
+        } catch (Exception e){
+            e.printStackTrace();
+            log.info("数据库备份失败");
+        }
+        log.info("数据库备份结束");
+        return  fileName;
     }
 
     @Override
