@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
+import cn.hutool.core.util.CharsetUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -80,7 +81,7 @@ class FileUtilsTest {
         // Create target file
         Path zipToStore = Files.createTempFile("zipped-", ".zip");
         // Create zip output stream
-        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipToStore))) {
+        try (ZipOutputStream zipOut = new ZipOutputStream(Files.newOutputStream(zipToStore), CharsetUtil.CHARSET_GBK)) {
             // Zip file
             FileUtils.zip(tempDirectory, zipOut);
         }

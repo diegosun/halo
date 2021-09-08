@@ -3,14 +3,12 @@ package run.halo.app.service.impl;
 import static run.halo.app.model.support.HaloConst.HALO_BACKUP_MARKDOWN_PREFIX;
 import static run.halo.app.model.support.HaloConst.HALO_BACKUP_PREFIX;
 import static run.halo.app.model.support.HaloConst.HALO_DATA_EXPORT_PREFIX;
-import static run.halo.app.utils.DateTimeUtils.HORIZONTAL_LINE_DATETIME_FORMATTER;
 import static run.halo.app.utils.FileUtils.checkDirectoryTraversal;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileWriter;
 import cn.hutool.core.util.CharsetUtil;
-import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -220,22 +218,15 @@ public class BackupServiceImpl implements BackupService {
 
     @Override
     public BackupDTO backupWorkDirectory() {
+
         // Zip work directory to temporary file
         try {
-            // Create zip path for halo zip
-            String haloZipFileName = HALO_BACKUP_PREFIX
-                + DateTimeUtils.format(LocalDateTime.now(), HORIZONTAL_LINE_DATETIME_FORMATTER)
-                + IdUtil.simpleUUID().hashCode() + ".zip";
-            // Create halo zip file
-            Path haloZipFilePath = Paths.get(haloProperties.getBackupDir(), haloZipFileName);
-            if (!Files.exists(haloZipFilePath.getParent())) {
-                Files.createDirectories(haloZipFilePath.getParent());
-            }
-            Path haloZipPath = Files.createFile(haloZipFilePath);
-
+            Path haloZipPath = createFilePath(haloProperties.getBackupDir(), HALO_BACKUP_PREFIX, ".zip");
             // Zip halo
             run.halo.app.utils.FileUtils
                 .zip(Paths.get(this.haloProperties.getWorkDir()), haloZipPath);
+
+            // Path haloZipPath = backupWorkDirAndData();
 
             // Build backup dto
             return buildBackupDto(BACKUP_RESOURCE_BASE_URI, haloZipPath);
@@ -333,8 +324,7 @@ public class BackupServiceImpl implements BackupService {
         }
     }
 
-    @Override
-    public BackupDTO exportData() {
+    private Map<String, Object> loadData(){
         Map<String, Object> data = new HashMap<>();
         data.put("version", HaloConst.HALO_VERSION);
         data.put("export_date", DateUtil.now());
@@ -360,17 +350,15 @@ public class BackupServiceImpl implements BackupService {
         data.put("theme_settings", themeSettingService.listAll());
         data.put("user", userService.listAll());
 
+        return data;
+    }
+
+    @Override
+    public BackupDTO exportData() {
+        Map<String, Object> data = loadData();
+
         try {
-            String haloDataFileName = HALO_DATA_EXPORT_PREFIX
-                + DateTimeUtils.format(LocalDateTime.now(), HORIZONTAL_LINE_DATETIME_FORMATTER)
-                + IdUtil.simpleUUID().hashCode() + ".json";
-
-            Path haloDataFilePath = Paths.get(haloProperties.getDataExportDir(), haloDataFileName);
-            if (!Files.exists(haloDataFilePath.getParent())) {
-                Files.createDirectories(haloDataFilePath.getParent());
-            }
-            Path haloDataPath = Files.createFile(haloDataFilePath);
-
+            Path haloDataPath = createFilePath(haloProperties.getDataExportDir(), HALO_DATA_EXPORT_PREFIX, ".json");
             FileWriter fileWriter = new FileWriter(haloDataPath.toFile(), CharsetUtil.UTF_8);
             fileWriter.write(JsonUtils.objectToJson(data));
 
@@ -568,21 +556,9 @@ public class BackupServiceImpl implements BackupService {
             }
         }
 
-        // export sql
-        String sqlFileName = exportDatabase();
-
         // Create zip path
-        String markdownZipFileName = HALO_BACKUP_MARKDOWN_PREFIX
-            + strNow
-            + ".zip";
+        Path markdownZipPath =  createFilePath(haloProperties.getBackupMarkdownDir(), HALO_BACKUP_MARKDOWN_PREFIX, ".zip");
 
-        // Create zip file
-        Path markdownZipFilePath =
-            Paths.get(haloProperties.getBackupMarkdownDir(), markdownZipFileName);
-        if (!Files.exists(markdownZipFilePath.getParent())) {
-            Files.createDirectories(markdownZipFilePath.getParent());
-        }
-        Path markdownZipPath = Files.createFile(markdownZipFilePath);
         // Zip file
         try (ZipOutputStream markdownZipOut = new ZipOutputStream(
             Files.newOutputStream(markdownZipPath), CharsetUtil.CHARSET_GBK)) {
@@ -598,13 +574,6 @@ public class BackupServiceImpl implements BackupService {
                 run.halo.app.utils.FileUtils.zip(uploadPath, markdownZipOut);
             }
 
-            // Zip SQL
-            Path sqlPath = Paths.get(sqlFileName);
-            if(Files.exists(sqlPath)){
-                run.halo.app.utils.FileUtils.zip(sqlPath, markdownZipOut);
-                // run.halo.app.utils.FileUtils.deleteFolder(sqlPath);
-            }
-
             // Remove files in the temporary directory
             run.halo.app.utils.FileUtils.deleteFolder(markdownFileTempPath);
 
@@ -613,24 +582,6 @@ public class BackupServiceImpl implements BackupService {
         } catch (IOException e) {
             throw new ServiceException("Failed to export markdowns", e);
         }
-    }
-
-    // todo: 如何远程导
-    private String exportDatabase(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
-        String strNow = DateTimeUtils.format(LocalDateTime.now(), formatter);
-        String backupPathName = haloProperties.getBackupMarkdownDir();
-        String fileName = backupPathName + strNow + ".sql";
-
-        String cmd = "mysqldump -uroot -pfriday12358 halo > " + fileName;
-        try {
-            Runtime.getRuntime().exec(cmd);
-        } catch (Exception e){
-            e.printStackTrace();
-            log.info("数据库备份失败");
-        }
-        log.info("数据库备份结束");
-        return  fileName;
     }
 
     @Override
@@ -674,6 +625,64 @@ public class BackupServiceImpl implements BackupService {
             throw new NotFoundException("The file " + filename + " was not found", e);
         } catch (IOException e) {
             throw new ServiceException("Failed to delete backup", e);
+        }
+    }
+
+
+    /**
+     * @param parent： parent dir name
+     * @param prefix: 前缀
+     * @param suffix：后缀
+     * @return
+     * @throws IOException
+     */
+    private Path createFilePath(String parent, String prefix, String suffix) throws IOException {
+
+        String fileName = prefix
+            + DateTimeUtils.format(LocalDateTime.now(), DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss"))
+            + suffix;
+
+        Path zipFilePath = Paths.get(parent, fileName);
+
+        if (!Files.exists(zipFilePath.getParent())) {
+            Files.createDirectories(zipFilePath.getParent());
+        }
+        return Files.createFile(zipFilePath);
+    }
+
+
+    /**
+     * 备份WorkDir与数据
+     * @return
+     */
+    @Override
+    public Path backupWorkDirAndData() throws IOException {
+        // create zip file
+        Path workDirZipPath = createFilePath(haloProperties.getBackupDir(), HALO_BACKUP_PREFIX, ".zip");
+
+        try (ZipOutputStream zipOut = new ZipOutputStream(
+            Files.newOutputStream(workDirZipPath), CharsetUtil.CHARSET_GBK)){
+
+            // Zip work  directory
+            Path workDirPath = Paths.get(this.haloProperties.getWorkDir());
+            run.halo.app.utils.FileUtils.zip(workDirPath, zipOut);
+
+            // load data
+            Map<String, Object> data = loadData();
+            Path dataPath = createFilePath(haloProperties.getBackupDir(), HALO_DATA_EXPORT_PREFIX, ".json");
+            FileWriter fileWriter = new FileWriter(dataPath.toFile(), CharsetUtil.UTF_8);
+            fileWriter.write(JsonUtils.objectToJson(data));
+
+            // zip data
+            run.halo.app.utils.FileUtils.zip(dataPath, zipOut);
+
+            // rm data
+            run.halo.app.utils.FileUtils.deleteFolder(dataPath);
+
+            return workDirZipPath;
+
+        } catch (IOException e) {
+            throw new ServiceException("Failed to backup", e);
         }
     }
 

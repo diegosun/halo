@@ -129,6 +129,14 @@ public interface BackupService {
      */
     void deleteMarkdown(@NonNull String fileName);
 
+
+    /**
+     * 备份workDir与数据
+     * 这两个主要用于定时备份
+     * @return
+     */
+    Path backupWorkDirAndData() throws IOException;
+
     /**
      * Backup type.
      *
