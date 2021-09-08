@@ -21,11 +21,17 @@ public class BackupTask {
     @Autowired
     BackupService backupService;
 
-    @Scheduled(cron = "1 0 * * */2 ?")
+
+    /**
+     * 秒 分 时 日 月 周
+     * ?表示任意， /表示每隔
+     * 以下为每隔一周的周一凌晨1点
+     */
+    @Scheduled(cron = "0 0 1 ? * 1/2")
     public synchronized void run() {
         try {
             Path path = backupService.backupWorkDirAndData();
-            FileUtils.deleteFolder(path);
+            // FileUtils.deleteFolder(path);
 
         } catch (IOException e) {
             e.printStackTrace();
