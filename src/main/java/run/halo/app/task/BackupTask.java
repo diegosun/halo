@@ -1,11 +1,10 @@
 package run.halo.app.task;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import run.halo.app.service.BackupService;
-import run.halo.app.utils.FileUtils;
+import run.halo.app.utils.AliOssUtil;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -18,8 +17,14 @@ import java.nio.file.Path;
 @Component
 public class BackupTask {
 
-    @Autowired
-    BackupService backupService;
+    private final BackupService backupService;
+
+    private final AliOssUtil aliOssUtil;
+
+    public BackupTask(BackupService backupService, AliOssUtil aliOssUtil) {
+        this.backupService = backupService;
+        this.aliOssUtil = aliOssUtil;
+    }
 
 
     /**
@@ -28,9 +33,11 @@ public class BackupTask {
      * 以下为每隔一周的周一凌晨1点
      */
     @Scheduled(cron = "0 0 1 ? * 1/2")
+    // @Scheduled(cron = "0 25 * * * ?")
     public synchronized void run() {
         try {
             Path path = backupService.backupWorkDirAndData();
+            this.aliOssUtil.upload(path, "friday-blog");
             // FileUtils.deleteFolder(path);
 
         } catch (IOException e) {

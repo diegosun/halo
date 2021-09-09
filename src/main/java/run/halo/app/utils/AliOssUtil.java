@@ -20,21 +20,18 @@ import java.nio.file.Path;
 public class AliOssUtil {
 
     private final OptionService optionService;
-    private String endPoint;
-    private String accessKey;
-    private String accessSecret;
-
     public AliOssUtil(OptionService optionService) {
         this.optionService = optionService;
-        this.endPoint =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
-        this.accessKey =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
-        this.accessSecret =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
     }
 
     public void upload(Path path, String bucketName){
+        String endPoint =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
+        String accessKey =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
+        String accessSecret =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
+
         OSS ossClient = new OSSClientBuilder().build(endPoint, accessKey, accessSecret);
 
         try {
@@ -51,10 +48,15 @@ public class AliOssUtil {
         }
     }
 
-    public void delete(@NonNull String key) {
+    public void delete(String bucketName, @NonNull String key) {
+        String endPoint =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
+        String accessKey =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
+        String accessSecret =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
+
         Assert.notNull(key, "File key must not be blank");
-        String bucketName =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_BUCKET_NAME).toString();
 
         // Init OSS client
         OSS ossClient = new OSSClientBuilder().build(endPoint, accessKey, accessSecret);
