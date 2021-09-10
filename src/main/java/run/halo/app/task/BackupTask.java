@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import run.halo.app.service.BackupService;
 import run.halo.app.utils.AliOssUtil;
+import run.halo.app.utils.FileUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 
@@ -32,14 +33,13 @@ public class BackupTask {
      * ?表示任意， /表示每隔
      * 以下为每隔一周的周一凌晨1点
      */
-    @Scheduled(cron = "0 0 1 ? * 1/2")
-    // @Scheduled(cron = "0 25 * * * ?")
+    // @Scheduled(cron = "0 0 1 ? * 1/2")
+    @Scheduled(cron = "0 0 11/2 * * ?")
     public synchronized void run() {
         try {
             Path path = backupService.backupWorkDirAndData();
-            this.aliOssUtil.upload(path, "friday-blog");
+            this.aliOssUtil.upload(path, "friday-blog", "backup");
             // FileUtils.deleteFolder(path);
-
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -24,7 +24,7 @@ public class AliOssUtil {
         this.optionService = optionService;
     }
 
-    public void upload(Path path, String bucketName){
+    public void upload(Path pathToUpload, String bucketName, String bucketDirName){
         String endPoint =
             optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
         String accessKey =
@@ -35,12 +35,12 @@ public class AliOssUtil {
         OSS ossClient = new OSSClientBuilder().build(endPoint, accessKey, accessSecret);
 
         try {
-            final PutObjectResult putObjectResult = ossClient.putObject(bucketName,
-                path.getFileName().toString(),
-                new FileInputStream(path.toString()));
+            String fileName = bucketDirName.isEmpty() ? pathToUpload.getFileName().toString() : bucketDirName+"/"+pathToUpload.getFileName();
+            final PutObjectResult putObjectResult = ossClient.putObject(bucketName, fileName, new FileInputStream(pathToUpload.toString()));
             if (putObjectResult == null) {
-                throw new FileOperationException("上传文件 " + path.getFileName() + " 到阿里云失败 ");
+                throw new FileOperationException("上传文件 " + pathToUpload.getFileName() + " 到阿里云失败 ");
             }
+            log.info("备份" + fileName +"成功");
         } catch (Exception e){
             e.printStackTrace();
         } finally {
