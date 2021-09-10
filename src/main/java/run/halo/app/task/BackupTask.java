@@ -33,8 +33,8 @@ public class BackupTask {
      * ?表示任意， /表示每隔
      * 以下为每隔一周的周一凌晨1点
      */
-    // @Scheduled(cron = "0 0 1 ? * 1/2")
-    @Scheduled(cron = "0 0 11/2 * * ?")
+    @Scheduled(cron = "0 0 11 ? * 5/2")
+    // @Scheduled(cron = "0 0 11/2 * * ?")
     public synchronized void run() {
         try {
             Path path = backupService.backupWorkDirAndData();
