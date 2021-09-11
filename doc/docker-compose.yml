@@ -10,7 +10,7 @@ services:
       - 443:443
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      # - ./nginx/certs:/etc/nginx/certs:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
 
   blog-mysql:
     image: mysql:5.7
@@ -25,7 +25,7 @@ services:
       - ./blog/mysql_data:/var/lib/mysql
 
   blog-halo:
-    image: registry.cn-qingdao.aliyuncs.com/fridayplus/halo:0.2.5
+    image: registry.cn-qingdao.aliyuncs.com/fridayplus/halo:0.2.10
     container_name: blog-halo
     restart: unless-stopped
     environment:
