@@ -20,30 +20,27 @@ import java.nio.file.Path;
 public class AliOssUtil {
 
     private final OptionService optionService;
-    private String endPoint;
-    private String accessKey;
-    private String accessSecret;
-
     public AliOssUtil(OptionService optionService) {
         this.optionService = optionService;
-        this.endPoint =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
-        this.accessKey =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
-        this.accessSecret =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
     }
 
-    public void upload(Path path, String bucketName){
+    public void upload(Path pathToUpload, String bucketName, String bucketDirName){
+        String endPoint =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
+        String accessKey =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
+        String accessSecret =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
+
         OSS ossClient = new OSSClientBuilder().build(endPoint, accessKey, accessSecret);
 
         try {
-            final PutObjectResult putObjectResult = ossClient.putObject(bucketName,
-                path.getFileName().toString(),
-                new FileInputStream(path.toString()));
+            String fileName = bucketDirName.isEmpty() ? pathToUpload.getFileName().toString() : bucketDirName+"/"+pathToUpload.getFileName();
+            final PutObjectResult putObjectResult = ossClient.putObject(bucketName, fileName, new FileInputStream(pathToUpload.toString()));
             if (putObjectResult == null) {
-                throw new FileOperationException("上传文件 " + path.getFileName() + " 到阿里云失败 ");
+                throw new FileOperationException("上传文件 " + pathToUpload.getFileName() + " 到阿里云失败 ");
             }
+            log.info("备份" + fileName +"成功");
         } catch (Exception e){
             e.printStackTrace();
         } finally {
@@ -51,10 +48,15 @@ public class AliOssUtil {
         }
     }
 
-    public void delete(@NonNull String key) {
+    public void delete(String bucketName, @NonNull String key) {
+        String endPoint =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ENDPOINT).toString();
+        String accessKey =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_KEY).toString();
+        String accessSecret =
+            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_ACCESS_SECRET).toString();
+
         Assert.notNull(key, "File key must not be blank");
-        String bucketName =
-            optionService.getByPropertyOfNonNull(AliOssProperties.OSS_BUCKET_NAME).toString();
 
         // Init OSS client
         OSS ossClient = new OSSClientBuilder().build(endPoint, accessKey, accessSecret);
