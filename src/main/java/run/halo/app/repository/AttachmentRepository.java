@@ -1,5 +1,6 @@
 package run.halo.app.repository;
 
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -49,4 +50,11 @@ public interface AttachmentRepository
      */
     @Query(value = "select a from Attachment a where a.name=?1 order by a.createTime desc")
     List<Attachment> findByName(String name);
+
+    /**
+     * 获取某个时间点之后的附件
+     * @param time
+     * @return
+     */
+    List<Attachment> findByCreateTimeAfter(Date time);
 }

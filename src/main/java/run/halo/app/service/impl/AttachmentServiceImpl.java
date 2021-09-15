@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -243,6 +244,12 @@ public class AttachmentServiceImpl extends AbstractCrudService<Attachment, Integ
     public List<Attachment> findByName(String name) {
         return attachmentRepository.findByName(name);
     }
+
+    @Override
+    public List<Attachment> findAfterTime(Date time) {
+        return attachmentRepository.findByCreateTimeAfter(time);
+    }
+
 
     @Override
     public Attachment create(Attachment attachment) {

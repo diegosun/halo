@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -31,7 +32,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipOutputStream;
-// import org.apache.tools.zip.ZipOutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -656,9 +656,10 @@ public class BackupServiceImpl implements BackupService {
      * @return
      */
     @Override
-    public Path backupWorkDirAndData() throws IOException {
+    public Path fullBackupWorkDirAndData() throws IOException {
+        String prefixName = "full-";
         // create zip file
-        Path workDirZipPath = createFilePath(haloProperties.getBackupDir(), HALO_BACKUP_PREFIX, ".zip");
+        Path workDirZipPath = createFilePath(haloProperties.getBackupDir(), prefixName, ".zip");
 
         try (ZipOutputStream zipOut = new ZipOutputStream(
             Files.newOutputStream(workDirZipPath), CharsetUtil.CHARSET_GBK)){
@@ -684,6 +685,60 @@ public class BackupServiceImpl implements BackupService {
         } catch (IOException e) {
             throw new ServiceException("Failed to backup", e);
         }
+    }
+
+    public Path increaseBackupImageAndData() throws IOException {
+        String prefixName = "inc-";
+        // create zip file
+        Path zipPath = createFilePath(haloProperties.getBackupDir(), prefixName, ".zip");
+
+        try (ZipOutputStream zipOut = new ZipOutputStream(
+            Files.newOutputStream(zipPath), CharsetUtil.CHARSET_GBK)){
+
+            // load data
+            Map<String, Object> data = loadData();
+            Path dataPath = createFilePath(haloProperties.getBackupDir(), HALO_DATA_EXPORT_PREFIX, ".json");
+            FileWriter fileWriter = new FileWriter(dataPath.toFile(), CharsetUtil.UTF_8);
+            fileWriter.write(JsonUtils.objectToJson(data));
+
+            // attachment
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.DAY_OF_YEAR, -7);
+            List<Attachment> attachmentList = attachmentService.findAfterTime(calendar.getTime());
+            Path uploadDir = Paths.get(haloProperties.getBackupDir(), "halo");
+            if (Files.exists(uploadDir)) {
+                Files.delete(uploadDir);
+            }
+            Files.createDirectories(uploadDir);
+
+            for (Attachment attachment: attachmentList) {
+                Path srcPath = Paths.get(this.haloProperties.getWorkDir(), attachment.getPath());
+                if(!Files.exists(srcPath)){
+                    continue;
+                }
+                Path targetPath = Paths.get(uploadDir.toString(), attachment.getPath());
+                if(!Files.exists(targetPath.getParent())){
+                    Files.createDirectories(targetPath.getParent());
+                }
+                Files.copy(srcPath, targetPath);
+            }
+
+            // zip attachmentm
+            run.halo.app.utils.FileUtils.zip(uploadDir, zipOut);
+
+            // zip data
+            run.halo.app.utils.FileUtils.zip(dataPath, zipOut);
+
+            // rm data
+            run.halo.app.utils.FileUtils.deleteFolder(dataPath);
+            run.halo.app.utils.FileUtils.deleteFolder(uploadDir);
+
+            return zipPath;
+
+        } catch (IOException e) {
+            throw new ServiceException("Failed to backup", e);
+        }
+
     }
 
     /**

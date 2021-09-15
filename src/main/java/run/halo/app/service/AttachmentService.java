@@ -1,6 +1,7 @@
 package run.halo.app.service;
 
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,4 +90,11 @@ public interface AttachmentService extends CrudService<Attachment, Integer> {
      * @return
      */
     List<Attachment> findByName(String name);
+
+    /**
+     * find Attachment after createTime
+     * @param createTime
+     * @return
+     */
+    List<Attachment> findAfterTime(Date createTime);
 }

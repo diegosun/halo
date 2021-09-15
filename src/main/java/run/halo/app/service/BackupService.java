@@ -135,7 +135,14 @@ public interface BackupService {
      * 这两个主要用于定时备份
      * @return
      */
-    Path backupWorkDirAndData() throws IOException;
+    Path fullBackupWorkDirAndData() throws IOException;
+
+    /**
+     * 增量备份upload与数据
+     * @return
+     * @throws IOException
+     */
+    Path increaseBackupImageAndData() throws IOException;
 
     /**
      * Backup type.
