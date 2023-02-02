@@ -1,4 +1,4 @@
-public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBALeS09iJHG0POlv2cAkfjXGAxqvjaMnIUttEga1E/NFRWaNle0uOAO4nN3XaZiHqQrJJFMvryoHZH+YjCtnEjOECAwEAAQ==
+public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAIw5VXnraQKVX5RsoITafe7YzmKnn4he3jhdpMpv7lIaqXcIded23Gj4QvvQmK3qI9pe+okMMva5173bOeaO18ECAwEAAQ==
 spring:
   devtools:
     restart:
@@ -6,7 +6,7 @@ spring:
   datasource:
     druid:
       username: root
-      password: QqGaOl5YRU/aF9jNgbb2hg1Y+M0bwfooyg1FnuPeo0yV+ZMsc1ARWNfvaRIF9dUoEWYaZnsWzlDFULEt/i8Cmg==
+      password: ilgqI/Zsu2U6ctx5FEFRUP3qzLrbpeBI74uZo+01Pu0FuY3kO+fY77UwRT5U8U1okgzBUMLZKyJtUoR0IxKC9A==
       url: jdbc:mysql://${DB_HOST}:3306/halo?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=false
       driver-class-name: com.mysql.cj.jdbc.Driver
       initial-size: 5
