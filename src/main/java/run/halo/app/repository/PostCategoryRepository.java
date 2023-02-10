@@ -118,6 +118,20 @@ public interface PostCategoryRepository extends BaseRepository<PostCategory, Int
     @NonNull
     List<CategoryPostCountProjection> findPostCount();
 
+    // @Query(value = "select pc.category_id, count(pc.post_id) as post_count "
+    //     +  "from post_categories pc "
+    //     +  "inner join posts p on p.id=pc.post_id and p.status=(?1)"
+    //     +  "group by pc.category_id", nativeQuery = true)
+    // @NonNull
+    // List<CategoryPostCountProjection> findPostCountByStatus(int status);
+
+    @Query("select new run.halo.app.model.projection.CategoryPostCountProjection(count(pc.postId), pc.categoryId) "
+        +  "from PostCategory pc "
+        +  "join Post p "
+        +  "group by pc.categoryId")
+    @NonNull
+    List<CategoryPostCountProjection> findPostCountByStatus(PostStatus postStatus);
+
     /**
      * Finds all post categories by category id list.
      *

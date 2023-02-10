@@ -24,6 +24,7 @@ import run.halo.app.service.OptionService;
 import run.halo.app.service.PostCategoryService;
 import run.halo.app.service.PostService;
 import run.halo.app.service.ThemeService;
+import java.util.Set;
 
 /**
  * Category Model.
@@ -81,7 +82,7 @@ public class CategoryModel {
      * @param page current page
      * @return template name
      */
-    public String listPost(Model model, String slug, Integer page) {
+    public String listPost(Model model, String slug, Integer page, Boolean auth) {
 
         // Get category by slug
         final Category category = categoryService.getBySlugOfNonNull(slug, true);
@@ -97,12 +98,13 @@ public class CategoryModel {
 
         CategoryDTO categoryDTO = categoryService.convertTo(category);
 
+        Set<PostStatus>
+            statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
         final Pageable pageable = PageRequest.of(page - 1,
             optionService.getArchivesPageSize(),
             Sort.by(DESC, "topPriority", "createTime"));
         Page<Post> postPage =
-            postCategoryService.pagePostBy(category.getId(), Sets
-                .immutableEnumSet(PostStatus.PUBLISHED), pageable);
+            postCategoryService.pagePostBy(category.getId(),statusSet, pageable);
         Page<PostListVO> posts = postService.convertToListVo(postPage);
 
         // Generate meta description.

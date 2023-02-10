@@ -38,6 +38,7 @@ import run.halo.app.service.CategoryService;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.PostService;
 import run.halo.app.service.SheetService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * @author ryanwang
@@ -166,8 +167,9 @@ public class ContentContentController {
             }
         }
 
+        Boolean auth = AuthUtil.getAuth();
         if (optionService.getCategoriesPrefix().equals(prefix)) {
-            return categoryModel.listPost(model, slug, 1);
+            return categoryModel.listPost(model, slug, 1, auth);
         }
 
         if (optionService.getTagsPrefix().equals(prefix)) {
@@ -194,8 +196,9 @@ public class ContentContentController {
         @PathVariable("slug") String slug,
         @PathVariable("page") Integer page,
         Model model) {
+        Boolean auth = AuthUtil.getAuth();
         if (optionService.getCategoriesPrefix().equals(prefix)) {
-            return categoryModel.listPost(model, slug, page);
+            return categoryModel.listPost(model, slug, page, auth);
         }
 
         if (optionService.getTagsPrefix().equals(prefix)) {

@@ -4,8 +4,11 @@ import static run.halo.app.model.support.HaloConst.POST_PASSWORD_TEMPLATE;
 import static run.halo.app.model.support.HaloConst.SUFFIX_FTL;
 
 import cn.hutool.core.util.StrUtil;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -166,12 +169,15 @@ public class PostModel {
         return themeService.render("post");
     }
 
-    public String list(Integer page, Model model) {
+    public String list(Integer page, Model model, Boolean auth) {
         int pageSize = optionService.getPostPageSize();
         Pageable pageable = PageRequest
             .of(page >= 1 ? page - 1 : page, pageSize, postService.getPostDefaultSort());
 
-        Page<Post> postPage = postService.pageBy(PostStatus.PUBLISHED, pageable);
+        Set<PostStatus> statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
+        Page<Post> postPage = postService.pageBy(statusSet, pageable);
+        // Page<Post> postPage = postService.pageBy(PostStatus.PUBLISHED, pageable);
+
         Page<PostListVO> posts = postService.convertToListVo(postPage);
 
         model.addAttribute("is_index", true);

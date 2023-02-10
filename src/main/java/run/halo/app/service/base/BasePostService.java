@@ -2,6 +2,7 @@ package run.halo.app.service.base;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -155,6 +156,9 @@ public interface BasePostService<POST extends BasePost> extends CrudService<POST
      */
     @NonNull
     Page<POST> pageBy(@NonNull PostStatus status, @NonNull Pageable pageable);
+
+    @NonNull
+    Page<POST> pageBy(@NonNull Set<PostStatus> statusSet, @NonNull Pageable pageable);
 
     /**
      * Increases post visits.

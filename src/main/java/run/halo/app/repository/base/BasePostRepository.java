@@ -3,6 +3,7 @@ package run.halo.app.repository.base;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -49,6 +50,15 @@ public interface BasePostRepository<POST extends BasePost> extends BaseRepositor
     Page<POST> findAllByStatus(@NonNull PostStatus status, @NonNull Pageable pageable);
 
     /**
+     * finds posts by a set of status and pageable
+     * @param statusSet post status set must not be null
+     * @param pageable page info must not be null
+     * @return a page of post
+     */
+    @NonNull
+    Page<POST> findAllByStatusIn(@NonNull Set<PostStatus> statusSet, @NonNull Pageable pageable);
+
+    /**
      * Finds posts by status.
      *
      * @param status post staus must not be null
@@ -56,6 +66,15 @@ public interface BasePostRepository<POST extends BasePost> extends BaseRepositor
      */
     @NonNull
     List<POST> findAllByStatus(@NonNull PostStatus status);
+
+    /**
+     * Finds posts by status set.
+     *
+     * @param statusSet post status set must not be null
+     * @return a list of post
+     */
+    @NonNull
+    List<POST> findAllByStatusIn(@NonNull Set<PostStatus> statusSet);
 
     /**
      * Finds posts by status.

@@ -32,6 +32,7 @@ import run.halo.app.service.CategoryService;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.PostCategoryService;
 import run.halo.app.service.base.AbstractCrudService;
+import run.halo.app.utils.AuthUtil;
 import run.halo.app.utils.ServiceUtils;
 
 /**
@@ -309,9 +310,13 @@ public class PostCategoryServiceImpl extends AbstractCrudService<PostCategory, I
         Assert.notNull(sort, "Sort info must not be null");
         List<Category> categories = categoryService.listAll(sort, queryEncryptCategory);
 
+        Boolean auth = AuthUtil.getAuth();
+        // List<CategoryPostCountProjection> list = auth ? postCategoryRepository.findPostCount() : postCategoryRepository.findPostCountByStatus(PostStatus.PUBLISHED.getValue());
+        List<CategoryPostCountProjection> list = auth ? postCategoryRepository.findPostCount() : postCategoryRepository.findPostCountByStatus(PostStatus.PUBLISHED);
+
         // Query category post count
         Map<Integer, Long> categoryPostCountMap = ServiceUtils
-            .convertToMap(postCategoryRepository.findPostCount(),
+            .convertToMap(list,
                 CategoryPostCountProjection::getCategoryId,
                 CategoryPostCountProjection::getPostCount);
 

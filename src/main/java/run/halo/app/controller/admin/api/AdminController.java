@@ -1,9 +1,12 @@
 package run.halo.app.controller.admin.api;
 
 import io.swagger.annotations.ApiOperation;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,7 +28,6 @@ import run.halo.app.model.support.BaseResponse;
 import run.halo.app.security.token.AuthToken;
 import run.halo.app.service.AdminService;
 import run.halo.app.service.OptionService;
-
 /**
  * Admin controller.
  *
@@ -62,17 +64,37 @@ public class AdminController {
         return new LoginPreCheckDTO(MFAType.useMFA(user.getMfaType()));
     }
 
+    /**
+     * TODO: 暂时在这里增加cookie，后边看情况可以添加单独的路由
+     * @param loginParam
+     * @param response
+     * @return
+     */
     @PostMapping("login")
     @ApiOperation("Login")
     @CacheLock(autoDelete = false, prefix = "login_auth")
-    public AuthToken auth(@RequestBody @Valid LoginParam loginParam) {
-        return adminService.authCodeCheck(loginParam);
+    public AuthToken auth(@RequestBody @Valid LoginParam loginParam, HttpServletResponse response) {
+        AuthToken authToken =  adminService.authCodeCheck(loginParam);
+        // 添加cookie
+        Cookie cookie = new Cookie("token", authToken.getAccessToken());
+        cookie.setMaxAge(authToken.getExpiredIn());
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return authToken;
     }
+
 
     @PostMapping("logout")
     @ApiOperation("Logs out (Clear session)")
     @CacheLock(autoDelete = false)
-    public void logout() {
+    public void logout(@CookieValue(value = "token",defaultValue = "") String token, HttpServletResponse response) {
+        // 删除cookie
+        if(!token.isEmpty()){
+            Cookie cookie = new Cookie("token", token);
+            cookie.setPath("/");
+            cookie.setMaxAge(0);
+            response.addCookie(cookie);
+        }
         adminService.clearToken();
     }
 

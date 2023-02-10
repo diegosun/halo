@@ -12,6 +12,7 @@ import run.halo.app.model.entity.Post;
 import run.halo.app.model.enums.PostPermalinkType;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.PostService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * Blog index page controller
@@ -67,8 +68,8 @@ public class ContentIndexController {
      * @return template path: themes/{theme}/index.ftl
      */
     @GetMapping(value = "page/{page}")
-    public String index(Model model,
-        @PathVariable(value = "page") Integer page) {
-        return postModel.list(page, model);
+    public String index(Model model, @PathVariable(value = "page") Integer page) {
+        Boolean auth = AuthUtil.getAuth();
+        return postModel.list(page, model, auth);
     }
 }

@@ -43,6 +43,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.multipart.MultipartResolver;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -51,6 +52,7 @@ import run.halo.app.config.properties.HaloProperties;
 import run.halo.app.core.PageJacksonSerializer;
 import run.halo.app.core.freemarker.inheritance.ThemeExtendsDirective;
 import run.halo.app.factory.StringToEnumConverterFactory;
+import run.halo.app.interceptor.AuthenticationInterceptor;
 import run.halo.app.security.resolver.AuthenticationArgumentResolver;
 
 /**
@@ -71,13 +73,16 @@ public class HaloMvcConfiguration implements WebMvcConfigurer {
     private final HaloProperties haloProperties;
     @Value("${springfox.documentation.swagger-ui.base-url:}")
     private String swaggerBaseUrl;
+    private final AuthenticationInterceptor authenticationInterceptor;
 
     public HaloMvcConfiguration(PageableHandlerMethodArgumentResolver pageableResolver,
         SortHandlerMethodArgumentResolver sortResolver,
-        HaloProperties haloProperties) {
+        HaloProperties haloProperties,
+        AuthenticationInterceptor authenticationInterceptor) {
         this.pageableResolver = pageableResolver;
         this.sortResolver = sortResolver;
         this.haloProperties = haloProperties;
+        this.authenticationInterceptor = authenticationInterceptor;
     }
 
     // @Bean
@@ -206,5 +211,10 @@ public class HaloMvcConfiguration implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverterFactory(new StringToEnumConverterFactory());
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(authenticationInterceptor).addPathPatterns("/**");
     }
 }

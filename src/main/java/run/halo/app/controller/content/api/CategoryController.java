@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import com.google.common.collect.Sets;
 import io.swagger.annotations.ApiOperation;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,6 +26,7 @@ import run.halo.app.service.AuthenticationService;
 import run.halo.app.service.CategoryService;
 import run.halo.app.service.PostCategoryService;
 import run.halo.app.service.PostService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * Content category controller.
@@ -78,9 +80,9 @@ public class CategoryController {
             throw new ForbiddenException("您没有该分类的访问权限");
         }
 
-        Page<Post> postPage =
-            postCategoryService.pagePostBy(category.getId(),
-                Sets.immutableEnumSet(PostStatus.PUBLISHED), pageable);
+        Boolean auth = AuthUtil.getAuth();
+        Set<PostStatus> statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
+        Page<Post> postPage = postCategoryService.pagePostBy(category.getId(), statusSet, pageable);
         return postService.convertToListVo(postPage);
     }
 }

@@ -6,6 +6,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -225,6 +226,14 @@ public abstract class BasePostServiceImpl<POST extends BasePost>
         Assert.notNull(pageable, "Page info must not be null");
 
         return basePostRepository.findAllByStatus(status, pageable);
+    }
+
+    @Override
+    public Page<POST> pageBy(Set<PostStatus> statusSet, Pageable pageable) {
+        Assert.notNull(statusSet, "Post status must not be null");
+        Assert.notNull(pageable, "Page info must not be null");
+
+        return basePostRepository.findAllByStatusIn(statusSet, pageable);
     }
 
     @Override

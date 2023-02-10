@@ -160,6 +160,8 @@ public class HaloConst {
 
     public static final String PRIVATE_OPTION_KEY = "private_options";
 
+    public static final String AUTH_KEY = "auth";
+
     static {
         // Set version
         HALO_VERSION = Optional.ofNullable(HaloConst.class.getPackage().getImplementationVersion())

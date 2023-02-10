@@ -19,6 +19,7 @@ import run.halo.app.model.entity.Category;
 import run.halo.app.model.support.HaloConst;
 import run.halo.app.service.CategoryService;
 import run.halo.app.service.PostCategoryService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * Freemarker custom tag of category.
@@ -44,6 +45,7 @@ public class CategoryTagDirective implements TemplateDirectiveModel {
     @Override
     public void execute(Environment env, Map params, TemplateModel[] loopVars,
         TemplateDirectiveBody body) throws TemplateException, IOException {
+        Boolean auth = AuthUtil.getAuth();
         final DefaultObjectWrapperBuilder builder =
             new DefaultObjectWrapperBuilder(Configuration.VERSION_2_3_25);
 
