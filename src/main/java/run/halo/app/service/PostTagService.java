@@ -102,6 +102,16 @@ public interface PostTagService extends CrudService<PostTag, Integer> {
     Page<Post> pagePostsBy(@NonNull Integer tagId, @NonNull PostStatus status, Pageable pageable);
 
     /**
+     * Pages posts by tag id and post status set.
+     *
+     * @param tagId must not be null
+     * @param statusSet post status set
+     * @param pageable must not be null
+     * @return a page of post
+     */
+    Page<Post> pagePostsBy(@NonNull Integer tagId, @NonNull Set<PostStatus> statusSet, Pageable pageable);
+
+    /**
      * Merges or creates post tags by post id and tag id set if absent.
      *
      * @param postId post id must not be null

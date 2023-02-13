@@ -24,6 +24,7 @@ import run.halo.app.service.OptionService;
 import run.halo.app.service.PostCategoryService;
 import run.halo.app.service.PostService;
 import run.halo.app.service.ThemeService;
+import run.halo.app.utils.AuthUtil;
 import java.util.Set;
 
 /**
@@ -98,8 +99,7 @@ public class CategoryModel {
 
         CategoryDTO categoryDTO = categoryService.convertTo(category);
 
-        Set<PostStatus>
-            statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
+        Set<PostStatus> statusSet = PostStatus.getByAuth(AuthUtil.getAuth());
         final Pageable pageable = PageRequest.of(page - 1,
             optionService.getArchivesPageSize(),
             Sort.by(DESC, "topPriority", "createTime"));

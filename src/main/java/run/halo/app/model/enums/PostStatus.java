@@ -1,5 +1,7 @@
 package run.halo.app.model.enums;
 
+import java.util.Set;
+
 /**
  * Post status.
  *
@@ -36,5 +38,9 @@ public enum PostStatus implements ValueEnum<Integer> {
     @Override
     public Integer getValue() {
         return value;
+    }
+
+    public static Set<PostStatus> getByAuth(Boolean auth){
+        return auth ? Set.of(PUBLISHED, INTIMATE) : Set.of(PUBLISHED);
     }
 }

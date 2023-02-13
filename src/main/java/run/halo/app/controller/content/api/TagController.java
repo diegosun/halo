@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import java.util.List;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,7 @@ import run.halo.app.model.vo.PostListVO;
 import run.halo.app.service.PostService;
 import run.halo.app.service.PostTagService;
 import run.halo.app.service.TagService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * Content tag controller.
@@ -69,9 +71,10 @@ public class TagController {
         // Get tag by slug
         Tag tag = tagService.getBySlugOfNonNull(slug);
 
+        Set<PostStatus> statusSet = PostStatus.getByAuth(AuthUtil.getAuth());
         // Get posts, convert and return
         Page<Post> postPage =
-            postTagService.pagePostsBy(tag.getId(), PostStatus.PUBLISHED, pageable);
+            postTagService.pagePostsBy(tag.getId(), statusSet, pageable);
         return postService.convertToListVo(postPage);
     }
 }

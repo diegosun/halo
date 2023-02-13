@@ -35,6 +35,7 @@ import run.halo.app.repository.base.BasePostRepository;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.base.AbstractCrudService;
 import run.halo.app.service.base.BasePostService;
+import run.halo.app.utils.AuthUtil;
 import run.halo.app.utils.DateUtils;
 import run.halo.app.utils.HaloUtils;
 import run.halo.app.utils.MarkdownUtils;
@@ -214,7 +215,9 @@ public abstract class BasePostServiceImpl<POST extends BasePost>
         Assert.isTrue(top > 0, "Top number must not be less than 0");
 
         PageRequest latestPageable = PageRequest.of(0, top, Sort.by(DESC, "createTime"));
-        return basePostRepository.findAllByStatus(PostStatus.PUBLISHED, latestPageable)
+
+        Set<PostStatus> statusSet = PostStatus.getByAuth(AuthUtil.getAuth());
+        return basePostRepository.findAllByStatusIn(statusSet, latestPageable)
             .getContent();
     }
 

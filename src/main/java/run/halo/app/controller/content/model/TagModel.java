@@ -18,6 +18,8 @@ import run.halo.app.service.PostService;
 import run.halo.app.service.PostTagService;
 import run.halo.app.service.TagService;
 import run.halo.app.service.ThemeService;
+import run.halo.app.utils.AuthUtil;
+import java.util.Set;
 
 /**
  * Tag Model.
@@ -61,8 +63,10 @@ public class TagModel {
 
         final Pageable pageable = PageRequest
             .of(page - 1, optionService.getArchivesPageSize(), Sort.by(DESC, "createTime"));
+
+        Set<PostStatus> statusSet = PostStatus.getByAuth(AuthUtil.getAuth());
         Page<Post> postPage =
-            postTagService.pagePostsBy(tag.getId(), PostStatus.PUBLISHED, pageable);
+            postTagService.pagePostsBy(tag.getId(), statusSet, pageable);
         Page<PostListVO> posts = postService.convertToListVo(postPage);
 
         model.addAttribute("is_tag", true);

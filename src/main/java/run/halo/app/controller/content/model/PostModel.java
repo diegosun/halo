@@ -37,6 +37,7 @@ import run.halo.app.service.PostService;
 import run.halo.app.service.PostTagService;
 import run.halo.app.service.TagService;
 import run.halo.app.service.ThemeService;
+import run.halo.app.utils.AuthUtil;
 import run.halo.app.utils.MarkdownUtils;
 
 /**
@@ -174,7 +175,7 @@ public class PostModel {
         Pageable pageable = PageRequest
             .of(page >= 1 ? page - 1 : page, pageSize, postService.getPostDefaultSort());
 
-        Set<PostStatus> statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
+        Set<PostStatus> statusSet = PostStatus.getByAuth(AuthUtil.getAuth());
         Page<Post> postPage = postService.pageBy(statusSet, pageable);
         // Page<Post> postPage = postService.pageBy(PostStatus.PUBLISHED, pageable);
 

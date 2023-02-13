@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
@@ -22,7 +23,6 @@ import run.halo.app.model.entity.Post;
 import run.halo.app.model.entity.PostTag;
 import run.halo.app.model.entity.Tag;
 import run.halo.app.model.enums.PostStatus;
-import run.halo.app.model.projection.TagPostPostCountProjection;
 import run.halo.app.repository.PostRepository;
 import run.halo.app.repository.PostTagRepository;
 import run.halo.app.repository.TagRepository;
@@ -202,6 +202,16 @@ public class PostTagServiceImpl extends AbstractCrudService<PostTag, Integer>
         // Find all post ids
         Set<Integer> postIds = postTagRepository.findAllPostIdsByTagId(tagId, status);
 
+        return postRepository.findAllByIdIn(postIds, pageable);
+    }
+    @Override
+    public Page<Post> pagePostsBy(@NonNull Integer tagId, @NonNull Set<PostStatus> statusSet, Pageable pageable){
+        Assert.notNull(tagId, "Tag id must not be null");
+        Assert.notNull(statusSet, "Post status must not be null");
+        Assert.notNull(pageable, "Page info must not be null");
+
+        // Find all post ids
+        Set<Integer> postIds = postTagRepository.findAllPostIdsByTagIdIn(tagId, statusSet);
         return postRepository.findAllByIdIn(postIds, pageable);
     }
 

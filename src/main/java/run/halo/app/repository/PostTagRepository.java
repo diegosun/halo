@@ -70,6 +70,11 @@ public interface PostTagRepository extends BaseRepository<PostTag, Integer> {
     @NonNull
     Set<Integer> findAllPostIdsByTagId(@NonNull Integer tagId, @NonNull PostStatus status);
 
+    @Query("select postTag.postId from PostTag postTag,Post post where postTag.tagId = ?1 and "
+        + "post.id = postTag.postId and post.status in (?2)")
+    @NonNull
+    Set<Integer> findAllPostIdsByTagIdIn(@NonNull Integer tagId, @NonNull Set<PostStatus> statusSet);
+
     /**
      * Finds all tags by post id in.
      *
