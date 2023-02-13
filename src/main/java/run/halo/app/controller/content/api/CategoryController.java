@@ -81,7 +81,7 @@ public class CategoryController {
         }
 
         Boolean auth = AuthUtil.getAuth();
-        Set<PostStatus> statusSet = auth ? Sets.immutableEnumSet(PostStatus.PUBLISHED, PostStatus.INTIMATE) : Sets.immutableEnumSet(PostStatus.PUBLISHED);
+        Set<PostStatus> statusSet = PostStatus.getByAuth(auth);
         Page<Post> postPage = postCategoryService.pagePostBy(category.getId(), statusSet, pageable);
         return postService.convertToListVo(postPage);
     }

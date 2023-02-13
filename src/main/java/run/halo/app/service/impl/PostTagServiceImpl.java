@@ -84,8 +84,10 @@ public class PostTagServiceImpl extends AbstractCrudService<PostTag, Integer>
         //     .convertToMap(postTagRepository.findPostCount(), TagPostPostCountProjection::getTagId,
         //         TagPostPostCountProjection::getPostCount);
         Boolean auth = AuthUtil.getAuth();
-        Set<Integer> statusSet = auth ? Set.of(PostStatus.INTIMATE.getValue(), PostStatus.PUBLISHED.getValue()) : Set.of(PostStatus.PUBLISHED.getValue());
-        List<PostTag> postTagList = postTagRepository.findPostCountByStatusSet(statusSet);
+        Set<PostStatus> statusSet = PostStatus.getByAuth(auth);
+        List<PostTag> postTagList = postTagRepository.findPostCountByStatusSet(statusSet.stream().map(
+            PostStatus::getValue).collect(
+            Collectors.toSet()));
         Map<Integer, Long> tagPostCountMap = new HashMap<>();
         postTagList.forEach(postTag -> {
             tagPostCountMap.computeIfPresent(postTag.getTagId(), (key,value)->value+1);

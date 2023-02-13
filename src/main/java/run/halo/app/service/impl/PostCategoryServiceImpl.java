@@ -312,9 +312,11 @@ public class PostCategoryServiceImpl extends AbstractCrudService<PostCategory, I
         List<Category> categories = categoryService.listAll(sort, queryEncryptCategory);
 
         Boolean auth = AuthUtil.getAuth();
-        Set<Integer> statusSet = auth ? Set.of(PostStatus.INTIMATE.getValue(), PostStatus.PUBLISHED.getValue()) : Set.of(PostStatus.PUBLISHED.getValue());
+        Set<PostStatus> statusSet = PostStatus.getByAuth(auth);
         // 由于native方式要用`@NamedNativeQuery`，以及JPQL方式不支持这种手写中表，还没有@ManyToMany标签的，故采用在内存中实现的方式
-        List<PostCategory> postCategoryList = postCategoryRepository.findPostCategoryByStatusSet(statusSet);
+        List<PostCategory> postCategoryList = postCategoryRepository.findPostCategoryByStatusSet(statusSet.stream().map(
+            PostStatus::getValue).collect(
+            Collectors.toSet()));
         Map<Integer, Long> categoryMap = new HashMap<>();
         postCategoryList
             .forEach(postCategory -> {

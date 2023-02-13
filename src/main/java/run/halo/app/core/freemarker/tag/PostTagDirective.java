@@ -61,7 +61,7 @@ public class PostTagDirective implements TemplateDirectiveModel {
                     break;
                 case "count": {
                     Boolean auth = AuthUtil.getAuth();
-                    Set<PostStatus> statusSet = auth ? Set.of(PostStatus.INTIMATE, PostStatus.PUBLISHED) : Set.of(PostStatus.PUBLISHED);
+                    Set<PostStatus> statusSet = PostStatus.getByAuth(auth);
                     env.setVariable("count",
                         builder.build().wrap(postService.countByStatusSet(statusSet)));
                 }

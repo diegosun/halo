@@ -82,7 +82,7 @@ public class StatisticServiceImpl implements StatisticService {
     public StatisticDTO getStatistic() {
         StatisticDTO statisticDto = new StatisticDTO();
         Boolean auth = AuthUtil.getAuth();
-        Set<PostStatus> statusSet = auth ? Set.of(PostStatus.INTIMATE, PostStatus.PUBLISHED) : Set.of(PostStatus.PUBLISHED);
+        Set<PostStatus> statusSet = PostStatus.getByAuth(auth);
 
         statisticDto.setPostCount(postService.countByStatusSet(statusSet));
 
