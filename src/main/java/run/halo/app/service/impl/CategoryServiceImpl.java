@@ -298,32 +298,32 @@ public class CategoryServiceImpl extends AbstractCrudService<Category, Integer>
 
     @Override
     public void refreshPostStatus(List<Integer> affectedPostIdList) {
-        if (CollectionUtil.isEmpty(affectedPostIdList)) {
-            return;
-        }
-
-        for (Integer postId : affectedPostIdList) {
-            Post post = postService.getById(postId);
-
-            post.setStatus(null);
-
-            if (StrUtil.isNotBlank(post.getPassword())) {
-                post.setStatus(PostStatus.INTIMATE);
-            } else {
-                postCategoryService.listByPostId(postId)
-                    .stream().map(PostCategory::getCategoryId)
-                    .filter(this::categoryHasEncrypt)
-                    .findAny()
-                    .ifPresent(id -> post.setStatus(PostStatus.INTIMATE));
-            }
-
-            if (post.getStatus() == null) {
-                post.setStatus(PostStatus.PUBLISHED);
-            }
-
-            postService.update(post);
-        }
-
+        // 疯掉INTIMATE与Category的关系
+        // if (CollectionUtil.isEmpty(affectedPostIdList)) {
+        //     return;
+        // }
+        //
+        // for (Integer postId : affectedPostIdList) {
+        //     Post post = postService.getById(postId);
+        //
+        //     post.setStatus(null);
+        //
+        //     if (StrUtil.isNotBlank(post.getPassword())) {
+        //         post.setStatus(PostStatus.INTIMATE);
+        //     } else {
+        //         postCategoryService.listByPostId(postId)
+        //             .stream().map(PostCategory::getCategoryId)
+        //             .filter(this::categoryHasEncrypt)
+        //             .findAny()
+        //             .ifPresent(id -> post.setStatus(PostStatus.INTIMATE));
+        //     }
+        //
+        //     if (post.getStatus() == null) {
+        //         post.setStatus(PostStatus.PUBLISHED);
+        //     }
+        //
+        //     postService.update(post);
+        // }
     }
 
     @Override

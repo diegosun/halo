@@ -457,8 +457,9 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
             }
         }
 
+        // 导入内容默认为INTIMATE
         if (null == post.getStatus()) {
-            post.setStatus(PostStatus.PUBLISHED);
+            post.setStatus(PostStatus.INTIMATE);
         }
 
         if (StringUtils.isEmpty(post.getTitle())) {
@@ -892,24 +893,25 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
         Set<Integer> categoryIds, Set<PostMeta> metas) {
         Assert.notNull(post, "Post param must not be null");
 
+        // 封掉 INTIMATE 设置的代码
         // Create or update post
-        Boolean needEncrypt = Optional.ofNullable(categoryIds)
-            .filter(CollectionUtil::isNotEmpty)
-            .map(categoryIdSet -> {
-                for (Integer categoryId : categoryIdSet) {
-                    if (categoryService.categoryHasEncrypt(categoryId)) {
-                        return true;
-                    }
-                }
-                return false;
-            }).orElse(Boolean.FALSE);
-
-        // if password is not empty or parent category has encrypt, change status to intimate
-        if (post.getStatus() != PostStatus.DRAFT
-            && (StringUtils.isNotEmpty(post.getPassword()) || needEncrypt)
-        ) {
-            post.setStatus(PostStatus.INTIMATE);
-        }
+        // Boolean needEncrypt = Optional.ofNullable(categoryIds)
+        //     .filter(CollectionUtil::isNotEmpty)
+        //     .map(categoryIdSet -> {
+        //         for (Integer categoryId : categoryIdSet) {
+        //             if (categoryService.categoryHasEncrypt(categoryId)) {
+        //                 return true;
+        //             }
+        //         }
+        //         return false;
+        //     }).orElse(Boolean.FALSE);
+        //
+        // // if password is not empty or parent category has encrypt, change status to intimate
+        // if (post.getStatus() != PostStatus.DRAFT
+        //     && (StringUtils.isNotEmpty(post.getPassword()) || needEncrypt)
+        // ) {
+        //     post.setStatus(PostStatus.INTIMATE);
+        // }
 
         post = super.createOrUpdateBy(post);
 
