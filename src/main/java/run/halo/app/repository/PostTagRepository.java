@@ -117,4 +117,10 @@ public interface PostTagRepository extends BaseRepository<PostTag, Integer> {
         + " pt.tagId) from PostTag pt group by pt.tagId")
     @NonNull
     List<TagPostPostCountProjection> findPostCount();
+
+    @Query(value = "select pt.* "
+        + "from post_tags pt "
+        + "inner join posts p on p.id=pt.post_id and p.status in (?1)", nativeQuery = true)
+    @NonNull
+    List<PostTag> findPostCountByStatusSet(Set<Integer> statusSet);
 }

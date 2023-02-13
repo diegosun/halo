@@ -29,6 +29,7 @@ import run.halo.app.repository.TagRepository;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.PostTagService;
 import run.halo.app.service.base.AbstractCrudService;
+import run.halo.app.utils.AuthUtil;
 import run.halo.app.utils.ServiceUtils;
 
 /**
@@ -79,9 +80,17 @@ public class PostTagServiceImpl extends AbstractCrudService<PostTag, Integer>
         List<Tag> tags = tagRepository.findAll(sort);
 
         // Find all post count
-        Map<Integer, Long> tagPostCountMap = ServiceUtils
-            .convertToMap(postTagRepository.findPostCount(), TagPostPostCountProjection::getTagId,
-                TagPostPostCountProjection::getPostCount);
+        // Map<Integer, Long> tagPostCountMap = ServiceUtils
+        //     .convertToMap(postTagRepository.findPostCount(), TagPostPostCountProjection::getTagId,
+        //         TagPostPostCountProjection::getPostCount);
+        Boolean auth = AuthUtil.getAuth();
+        Set<Integer> statusSet = auth ? Set.of(PostStatus.INTIMATE.getValue(), PostStatus.PUBLISHED.getValue()) : Set.of(PostStatus.PUBLISHED.getValue());
+        List<PostTag> postTagList = postTagRepository.findPostCountByStatusSet(statusSet);
+        Map<Integer, Long> tagPostCountMap = new HashMap<>();
+        postTagList.forEach(postTag -> {
+            tagPostCountMap.computeIfPresent(postTag.getTagId(), (key,value)->value+1);
+            tagPostCountMap.putIfAbsent(postTag.getTagId(), 1L);
+        });
 
         // Find post count
         return tags.stream().map(

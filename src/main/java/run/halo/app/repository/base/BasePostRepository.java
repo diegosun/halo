@@ -187,6 +187,8 @@ public interface BasePostRepository<POST extends BasePost> extends BaseRepositor
      */
     long countByStatus(@NonNull PostStatus status);
 
+    long countByStatusIn(@NonNull Set<PostStatus> statusSet);
+
     /**
      * Determine if the slug exists.
      *

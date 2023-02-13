@@ -11,6 +11,7 @@ import freemarker.template.TemplateModel;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.springframework.stereotype.Component;
 import run.halo.app.model.entity.Post;
 import run.halo.app.model.enums.PostStatus;
@@ -18,6 +19,7 @@ import run.halo.app.model.support.HaloConst;
 import run.halo.app.service.PostCategoryService;
 import run.halo.app.service.PostService;
 import run.halo.app.service.PostTagService;
+import run.halo.app.utils.AuthUtil;
 
 /**
  * Freemarker custom tag of post.
@@ -57,9 +59,12 @@ public class PostTagDirective implements TemplateDirectiveModel {
                     env.setVariable("posts", builder.build()
                         .wrap(postService.convertToListVo(postService.listLatest(top))));
                     break;
-                case "count":
+                case "count": {
+                    Boolean auth = AuthUtil.getAuth();
+                    Set<PostStatus> statusSet = auth ? Set.of(PostStatus.INTIMATE, PostStatus.PUBLISHED) : Set.of(PostStatus.PUBLISHED);
                     env.setVariable("count",
-                        builder.build().wrap(postService.countByStatus(PostStatus.PUBLISHED)));
+                        builder.build().wrap(postService.countByStatusSet(statusSet)));
+                }
                     break;
                 case "archiveYear":
                     env.setVariable("archives",

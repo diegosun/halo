@@ -2,6 +2,7 @@ package run.halo.app.service.impl;
 
 import static run.halo.app.model.support.HaloConst.URL_SEPARATOR;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -311,8 +312,17 @@ public class PostCategoryServiceImpl extends AbstractCrudService<PostCategory, I
         List<Category> categories = categoryService.listAll(sort, queryEncryptCategory);
 
         Boolean auth = AuthUtil.getAuth();
-        // List<CategoryPostCountProjection> list = auth ? postCategoryRepository.findPostCount() : postCategoryRepository.findPostCountByStatus(PostStatus.PUBLISHED.getValue());
-        List<CategoryPostCountProjection> list = auth ? postCategoryRepository.findPostCount() : postCategoryRepository.findPostCountByStatus(PostStatus.PUBLISHED);
+        Set<Integer> statusSet = auth ? Set.of(PostStatus.INTIMATE.getValue(), PostStatus.PUBLISHED.getValue()) : Set.of(PostStatus.PUBLISHED.getValue());
+        // 由于native方式要用`@NamedNativeQuery`，以及JPQL方式不支持这种手写中表，还没有@ManyToMany标签的，故采用在内存中实现的方式
+        List<PostCategory> postCategoryList = postCategoryRepository.findPostCategoryByStatusSet(statusSet);
+        Map<Integer, Long> categoryMap = new HashMap<>();
+        postCategoryList
+            .forEach(postCategory -> {
+                categoryMap.computeIfPresent(postCategory.getCategoryId(), (key, value)->value+1);
+                categoryMap.putIfAbsent(postCategory.getCategoryId(), 1L);
+            });
+        List<CategoryPostCountProjection> list = new ArrayList<>();
+        categoryMap.forEach((key, value) -> list.add(new CategoryPostCountProjection(value, key)));
 
         // Query category post count
         Map<Integer, Long> categoryPostCountMap = ServiceUtils

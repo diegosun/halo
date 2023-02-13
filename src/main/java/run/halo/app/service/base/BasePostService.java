@@ -44,6 +44,8 @@ public interface BasePostService<POST extends BasePost> extends CrudService<POST
      */
     long countByStatus(PostStatus status);
 
+    long countByStatusSet(Set<PostStatus> postStatusSet);
+
     /**
      * Get post by slug.
      *

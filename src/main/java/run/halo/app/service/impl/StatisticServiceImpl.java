@@ -20,6 +20,8 @@ import run.halo.app.service.SheetService;
 import run.halo.app.service.StatisticService;
 import run.halo.app.service.TagService;
 import run.halo.app.service.UserService;
+import run.halo.app.utils.AuthUtil;
+import java.util.Set;
 
 /**
  * Statistic service implementation.
@@ -79,7 +81,10 @@ public class StatisticServiceImpl implements StatisticService {
     @Override
     public StatisticDTO getStatistic() {
         StatisticDTO statisticDto = new StatisticDTO();
-        statisticDto.setPostCount(postService.countByStatus(PostStatus.PUBLISHED));
+        Boolean auth = AuthUtil.getAuth();
+        Set<PostStatus> statusSet = auth ? Set.of(PostStatus.INTIMATE, PostStatus.PUBLISHED) : Set.of(PostStatus.PUBLISHED);
+
+        statisticDto.setPostCount(postService.countByStatusSet(statusSet));
 
         // Handle comment count
         long postCommentCount = postCommentService.countByStatus(CommentStatus.PUBLISHED);

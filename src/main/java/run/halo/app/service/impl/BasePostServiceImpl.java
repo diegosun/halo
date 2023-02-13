@@ -84,6 +84,12 @@ public abstract class BasePostServiceImpl<POST extends BasePost>
     }
 
     @Override
+    public long countByStatusSet(Set<PostStatus> postStatusSet){
+        Assert.notNull(postStatusSet, "Post status must not be null");
+        return basePostRepository.countByStatusIn(postStatusSet);
+    }
+
+    @Override
     public POST getBySlug(String slug) {
         Assert.hasText(slug, "Slug must not be blank");
 
