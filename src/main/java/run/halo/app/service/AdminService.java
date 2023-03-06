@@ -80,6 +80,7 @@ public interface AdminService {
     @NonNull
     AuthToken refreshToken(@NonNull String refreshToken);
 
+    String getAccessTokenByRefreshToken(String refreshToken);
     /**
      * Get halo logs content.
      *

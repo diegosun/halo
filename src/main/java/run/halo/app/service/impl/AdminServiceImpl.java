@@ -289,6 +289,21 @@ public class AdminServiceImpl implements AdminService {
         return buildAuthToken(user);
     }
 
+    public String getAccessTokenByRefreshToken(String refreshToken){
+        Assert.hasText(refreshToken, "Refresh token must not be blank");
+
+        Integer userId =
+            cacheStore.getAny(SecurityUtils.buildTokenRefreshKey(refreshToken), Integer.class)
+                .orElseThrow(
+                    () -> new BadRequestException("登录状态已失效，请重新登录").setErrorData(refreshToken));
+
+        // Get user info
+        User user = userService.getById(userId);
+
+        // Remove all token
+        return  cacheStore.getAny(SecurityUtils.buildAccessTokenKey(user), String.class).orElse("");
+    }
+
     /**
      * Builds authentication token.
      *

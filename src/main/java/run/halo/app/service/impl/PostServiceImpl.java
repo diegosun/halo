@@ -73,6 +73,7 @@ import run.halo.app.service.PostMetaService;
 import run.halo.app.service.PostService;
 import run.halo.app.service.PostTagService;
 import run.halo.app.service.TagService;
+import run.halo.app.utils.AuthUtil;
 import run.halo.app.utils.DateUtils;
 import run.halo.app.utils.MarkdownUtils;
 import run.halo.app.utils.ServiceUtils;
@@ -157,8 +158,11 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
 
         PostQuery postQuery = new PostQuery();
         postQuery.setKeyword(keyword);
+        Boolean auth = AuthUtil.getAuth();
         postQuery.setStatus(PostStatus.PUBLISHED);
-
+        if(auth){
+            postQuery.setStatus2(PostStatus.INTIMATE);
+        }
         // Build specification and find all
         return postRepository.findAll(buildSpecByQuery(postQuery), pageable);
     }
@@ -858,7 +862,13 @@ public class PostServiceImpl extends BasePostServiceImpl<Post> implements PostSe
             List<Predicate> predicates = new LinkedList<>();
 
             if (postQuery.getStatus() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), postQuery.getStatus()));
+                if(postQuery.getStatus2() == null){
+                    predicates.add(criteriaBuilder.equal(root.get("status"), postQuery.getStatus()));
+                } else {
+                    Predicate e1 = criteriaBuilder.equal(root.get("status"), postQuery.getStatus());
+                    Predicate e2 = criteriaBuilder.equal(root.get("status"), postQuery.getStatus2());
+                    predicates.add(criteriaBuilder.or(e1, e2));
+                }
             }
 
             if (postQuery.getCategoryId() != null) {

@@ -22,6 +22,7 @@ public class PostQuery {
      */
     private PostStatus status;
 
+    private PostStatus status2;
     /**
      * Category id.
      */

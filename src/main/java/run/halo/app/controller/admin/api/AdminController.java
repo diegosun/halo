@@ -75,14 +75,21 @@ public class AdminController {
     @CacheLock(autoDelete = false, prefix = "login_auth")
     public AuthToken auth(@RequestBody @Valid LoginParam loginParam, HttpServletResponse response) {
         AuthToken authToken =  adminService.authCodeCheck(loginParam);
+        addTokenCookie(response, authToken.getAccessToken(), authToken.getExpiredIn());
         // 添加cookie
-        Cookie cookie = new Cookie("token", authToken.getAccessToken());
-        cookie.setMaxAge(authToken.getExpiredIn());
-        cookie.setPath("/");
-        response.addCookie(cookie);
+        // Cookie cookie = new Cookie("token", authToken.getAccessToken());
+        // cookie.setMaxAge(authToken.getExpiredIn());
+        // cookie.setPath("/");
+        // response.addCookie(cookie);
         return authToken;
     }
 
+    private void addTokenCookie(HttpServletResponse response, String token, int maxAge){
+        Cookie cookie = new Cookie("token", token);
+        cookie.setMaxAge(maxAge);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
 
     @PostMapping("logout")
     @ApiOperation("Logs out (Clear session)")
@@ -90,10 +97,11 @@ public class AdminController {
     public void logout(@CookieValue(value = "token",defaultValue = "") String token, HttpServletResponse response) {
         // 删除cookie
         if(!token.isEmpty()){
-            Cookie cookie = new Cookie("token", token);
-            cookie.setPath("/");
-            cookie.setMaxAge(0);
-            response.addCookie(cookie);
+            addTokenCookie(response, token, 0);
+            // Cookie cookie = new Cookie("token", token);
+            // cookie.setPath("/");
+            // cookie.setMaxAge(0);
+            // response.addCookie(cookie);
         }
         adminService.clearToken();
     }
@@ -117,8 +125,14 @@ public class AdminController {
     @PostMapping("refresh/{refreshToken}")
     @ApiOperation("Refreshes token")
     @CacheLock(autoDelete = false)
-    public AuthToken refresh(@PathVariable("refreshToken") String refreshToken) {
-        return adminService.refreshToken(refreshToken);
+    public AuthToken refresh(@PathVariable("refreshToken") String refreshToken, HttpServletResponse response) {
+        String accessToken = adminService.getAccessTokenByRefreshToken(refreshToken);
+        if(!accessToken.isEmpty()){
+            addTokenCookie(response, accessToken, 0);
+        }
+        AuthToken authToken =  adminService.refreshToken(refreshToken);
+        addTokenCookie(response, authToken.getAccessToken(), authToken.getExpiredIn());
+        return authToken;
     }
 
     @GetMapping("environments")
